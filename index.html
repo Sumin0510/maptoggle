@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zoomable Map</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+    #container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background-image: url('https://imgur.com/HHonUoQ.png');
+      background-size: cover;
+      background-position: center;
+      transition: transform 1s ease;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+    .region {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      transform: translate(-50%, -50%);
+    }
+    .pin-button {
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      z-index: 2;
+    }
+    #info {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 33.33%;
+      height: 100%;
+      background: linear-gradient(to right, rgba(0, 0, 0, 0.8), transparent);
+      color: white;
+      padding: 40px 20px;
+      font-size: 1.2em;
+      display: none;
+      opacity: 0;
+      transform: translateX(-20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+      pointer-events: none;
+      z-index: 100;
+    }
+    #info.show {
+      display: block;
+      opacity: 1;
+      transform: translateX(0);
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div class="region" style="top: 45%; left: 50%;" data-top="45" data-left="50" data-description="수인족">
+      <img class="pin-button" src="https://imgur.com/ioPZFEP.png" alt="핀" />
+    </div>
+    <div class="region" style="top: 60%; left: 30%;" data-top="60" data-left="30" data-description="인간 왕국">
+      <img class="pin-button" src="https://imgur.com/ioPZFEP.png" alt="핀" />
+    </div>
+    <div class="region" style="top: 70%; left: 10%;" data-top="70" data-left="10" data-description="드워프 족">
+      <img class="pin-button" src="https://imgur.com/ioPZFEP.png" alt="핀" />
+    </div>
+  </div>
+
+  <div id="info"></div>
+
+  <script>
+    let isZoomed = false;
+    let currentRegion = null;
+    const container = document.getElementById('container');
+    const info = document.getElementById('info');
+    const transitionDuration = 1000;
+
+    document.querySelectorAll('.pin-button').forEach(pin => {
+      pin.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const regionEl = pin.parentElement;
+        const topPercent = parseFloat(regionEl.getAttribute('data-top'));
+        const leftPercent = parseFloat(regionEl.getAttribute('data-left'));
+        const description = regionEl.getAttribute('data-description');
+
+        if (isZoomed && currentRegion === regionEl) {
+          container.style.transition = `transform 1s ease`;
+          container.style.transform = `perspective(1000px) scale(1) rotateX(0deg)`;
+          info.classList.remove('show');
+          setTimeout(() => {
+            info.style.display = 'none';
+          }, transitionDuration);
+          isZoomed = false;
+          currentRegion = null;
+          return;
+        }
+
+        if (isZoomed && currentRegion !== regionEl) {
+          container.style.transition = `transform ${transitionDuration / 1000}s ease`;
+          container.style.transform = `perspective(1000px) scale(1) rotateX(0deg)`;
+          info.classList.remove('show');
+
+          setTimeout(() => {
+            info.style.display = 'none';
+            container.style.transformOrigin = `${leftPercent}% ${topPercent}%`;
+            container.style.transition = `transform ${transitionDuration / 1000}s ease`;
+            container.style.transform = `perspective(1000px) scale(2) rotateX(20deg)`;
+
+            info.innerText = description;
+            info.style.display = 'block';
+            setTimeout(() => {
+              info.classList.add('show');
+            }, 10);
+
+            currentRegion = regionEl;
+            isZoomed = true;
+          }, transitionDuration);
+
+        } else {
+          container.style.transition = `transform 1s ease`;
+          container.style.transformOrigin = `${leftPercent}% ${topPercent}%`;
+          container.style.transform = `perspective(1000px) scale(2) rotateX(20deg)`;
+
+          info.innerText = description;
+          info.style.display = 'block';
+          setTimeout(() => {
+            info.classList.add('show');
+          }, 10);
+
+          currentRegion = regionEl;
+          isZoomed = true;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
