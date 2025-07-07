@@ -5,75 +5,252 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>맵 줌인/줌아웃 예제</title>
 <style>
-  body {
-    margin: 0; padding: 0; font-family: sans-serif;
-    background: #f0f0f0;
-  }
-  #wrapper {
-    position: relative;
-    width: 800px;
-    height: 600px;
-    margin: 50px auto;
-    background: url('your-map-image.jpg') no-repeat center/cover;
-    overflow: hidden;
-    border: 1px solid #ccc;
-    perspective: 800px;
-  }
-  #container {
-    width: 100%; height: 100%;
-    transform-origin: center center;
-    transition: transform 1s ease;
-    position: relative;
-  }
-  .region {
-    position: absolute;
-  }
-  .pin-button {
-    width: 20px; height: 20px;
-    border-radius: 50%;
-    background: red;
-    border: 2px solid white;
-    cursor: pointer;
-    box-shadow: 0 0 6px rgba(255,0,0,0.8);
-    transform: translate(-50%, -50%);
-  }
-  #info {
-    position: absolute;
-    top: 620px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 760px;
-    max-height: 200px;
-    background: white;
-    border: 1px solid #ddd;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    padding: 15px;
-    box-sizing: border-box;
-    overflow-y: auto;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-    display: none;
-  }
-  #info.show {
-    opacity: 1;
-    display: block;
-  }
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: sans-serif;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#wrapper {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#container {
+  position: relative;
+  width: 40vw;
+  height: 100vh;
+  background-image: url('https://imgur.com/hbbiADc.png');
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.8s ease;
+  transform-style: preserve-3d;
+  will-change: transform;
+  perspective: 1000px; /* 추가: 입체감 깊이 조절 */
+
+}
+
+/* 각 지역 핀의 위치 */
+.region {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  transform: translate(-50%, -50%);
+}
+
+/* 지도 핀 이미지 */
+.pin-button {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  transform: rotateX(0deg); /* 핀은 회전 안 함 */
+  transform-style: flat;
+  z-index: 2;
+}
+
+/* 설명 박스 */
+#info {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 33.33%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.6));
+  color: white;
+  padding: 40px 20px;
+  font-size: 1.2em;
+  display: none;
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  pointer-events: none;
+  z-index: 100;
+
+  /* 추가된 부분 */
+  border-right: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.3); /* 입체감 주기 */
+  
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+#info::-webkit-scrollbar {
+  width: 6px;
+}
+
+#info::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+/* 설명 등장 애니메이션 */
+#info.show {
+  display: block;
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.poem {
+      text-align: center;
+      font-style: italic;
+      font-size: 0.9rem;
+      margin-bottom: 40px;
+    }
+
+.quote {
+      text-align: right;
+      font-size: 0.9rem;
+      font-style: italic;
+      margin-bottom: 30px;
+    }
+
+.subtitle {
+      text-align: right;
+      font-size: 0.85rem;
+      font-style: italic;
+      margin-bottom: 80px;
+    }
+
+.section-title {
+      font-weight: bold;
+      font-size: 1.4rem;
+      margin-top: 50px;
+      margin-bottom: 20px;
+    }
+
+.content {
+      font-size: 1rem;
+      text-align: justify;
+      line-height: 1.9;
+      margin: 40px;
+    }
+
+.star {
+      font-size: 1.2rem;
+      margin-right: 8px;
+    }
+
+.highlight-yello {
+      color: yellow;
+      font-weight: bold;
+      text-decoration: underline;
+    }
 </style>
 </head>
 <body>
-  <div id="wrapper">
-    <div id="container">
-      <!-- 예시 지역 핀 -->
-      <div class="region" data-top="30" data-left="40" data-description="region1" style="top:30%; left:40%;">
-        <button class="pin-button"></button>
-      </div>
-      <div class="region" data-top="60" data-left="70" data-description="region2" style="top:60%; left:70%;">
-        <button class="pin-button"></button>
-      </div>
-      <!-- 더 추가 가능 -->
-    </div>
-    <div id="info"></div>
+ <div id="wrapper">
+   <div id="container">
+    <div 
+    class="region" 
+    id="region-1" 
+    style="top: 15%; left: 65%;" 
+    data-top="15" 
+    data-left="65" 
+    data-description="atlas"
+    data-id="region-1"
+  >
+    <img class="pin-button" src="https://imgur.com/QCAnxSz.png" alt="핀" />
   </div>
+
+    <div 
+      class="region" 
+      id="region-2"
+      data-id="region-2"
+      style="top: 22%; left: 37%;" 
+      data-top="20" 
+      data-left="39" 
+      data-description="matop"
+    >
+      <img class="pin-button" src="https://imgur.com/QCAnxSz.png" alt="핀" />
+    </div>
+    <div 
+    class="region" 
+    id="region-3" 
+    style="top: 47%; left: 43%;" 
+    data-top="47" 
+    data-left="43" 
+    data-description="azemat"
+    data-id="region-3"
+  >
+    <img class="pin-button" src="https://imgur.com/QCAnxSz.png" alt="핀" />
+  </div>
+   <div 
+    class="region" 
+    id="region-4" 
+    style="top: 57%; left: 35%;" 
+    data-top="57" 
+    data-left="35" 
+    data-description="muspel"
+    data-id="region-4"
+  >
+    <img class="pin-button" src="https://imgur.com/QCAnxSz.png" alt="핀" />
+  </div>
+  <div 
+    class="region" 
+    id="region-5" 
+    style="top: 63%; left: 45%;" 
+    data-top="63" 
+    data-left="45" 
+    data-description="nidabel"
+    data-id="region-5"
+  >
+    <img class="pin-button" src="https://imgur.com/QCAnxSz.png" alt="핀" />
+  </div>
+  <div 
+    class="region" 
+    id="region-6" 
+    style="top: 70%; left: 27%;" 
+    data-top="70" 
+    data-left="15" 
+    data-description="samak"
+    data-id="region-6"
+  >
+    <img class="pin-button" src="https://imgur.com/QCAnxSz.png" alt="핀" />
+  </div>
+   <div 
+    class="region" 
+    id="region-7" 
+    style="top: 73%; left: 68%;" 
+    data-top="73" 
+    data-left="68" 
+    data-description="arkadia"
+    data-id="region-7"
+  >
+      <img class="pin-button" src="https://imgur.com/QCAnxSz.png" alt="핀" />
+  </div>
+   <div 
+    class="region" 
+    id="region-8" 
+    style="top: 47%; left: 90%;" 
+    data-top="47" 
+    data-left="90" 
+    data-description="holy"
+    data-id="region-8"
+  >
+    <img class="pin-button" src="https://imgur.com/QCAnxSz.png" alt="핀" />
+  </div>
+  <div 
+    class="region" 
+    id="region-9" 
+    style="top: 40%; left: 64%;" 
+    data-top="40" 
+    data-left="64" 
+    data-description="augustia"
+    data-id="region-9"
+  >
+    <img class="pin-button" src="https://imgur.com/QCAnxSz.png" alt="핀" />
+  </div>
+  </div>
+
+  <div id="info"></div>
+</div>
 
 <script>
   let isZoomed = false;
