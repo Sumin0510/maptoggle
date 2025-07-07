@@ -2,45 +2,63 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zoomable Map</title>
+  <title>지도 인터랙션</title>
   <style>
-    html, body {
+    body {
       margin: 0;
-      padding: 0;
       overflow: hidden;
       font-family: sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-    #container {
-      position: relative;
+
+    #wrapper {
       width: 100vw;
       height: 100vh;
-      background-image: url('https://imgur.com/HHonUoQ.png');
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    #container {
+      position: relative;
+      width: 40vw;
+      height: 100vh;
+      background-image: url('https://imgur.com/7JGoWdN.png');
       background-size: cover;
       background-position: center;
-      transition: transform 1s ease;
+      transition: transform 0.8s ease;
       transform-style: preserve-3d;
       will-change: transform;
+      perspective: 1000px;
     }
+
     .region {
       position: absolute;
       width: 100px;
       height: 100px;
       transform: translate(-50%, -50%);
     }
+
     .pin-button {
       width: 40px;
       height: 40px;
       cursor: pointer;
+      transform: rotateX(0deg);
+      transform-style: flat;
       z-index: 2;
     }
+
     #info {
       position: absolute;
       top: 0;
       left: 0;
       width: 33.33%;
       height: 100%;
-      background: linear-gradient(to right, rgba(0, 0, 0, 0.8), transparent);
+      background: linear-gradient(to right, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.6));
       color: white;
       padding: 40px 20px;
       font-size: 1.2em;
@@ -50,7 +68,10 @@
       transition: opacity 0.6s ease, transform 0.6s ease;
       pointer-events: none;
       z-index: 100;
+      border-right: 2px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 4px 0 8px rgba(0, 0, 0, 0.3);
     }
+
     #info.show {
       display: block;
       opacity: 1;
@@ -59,23 +80,52 @@
   </style>
 </head>
 <body>
-  <div id="container">
-    <div class="region" style="top: 45%; left: 50%;" data-top="45" data-left="50" data-description="수인족">
-      <img class="pin-button" src="https://imgur.com/ioPZFEP.png" alt="핀" />
-    </div>
-    <div class="region" style="top: 60%; left: 30%;" data-top="60" data-left="30" data-description="인간 왕국">
-      <img class="pin-button" src="https://imgur.com/ioPZFEP.png" alt="핀" />
-    </div>
-    <div class="region" style="top: 70%; left: 10%;" data-top="70" data-left="10" data-description="드워프 족">
-      <img class="pin-button" src="https://imgur.com/ioPZFEP.png" alt="핀" />
-    </div>
-  </div>
+  <div id="wrapper">
+    <div id="container">
+      <div 
+        class="region" 
+        id="region-1" 
+        style="top: 15%; left: 65%;" 
+        data-top="15" 
+        data-left="65" 
+        data-description="아틀라스 대산맥"
+        data-id="region-1"
+      >
+        <img class="pin-button" src="https://imgur.com/QCAnxSz.png" alt="핀" />
+      </div>
 
-  <div id="info"></div>
+      <div 
+        class="region" 
+        id="region-2"
+        style="top: 20%; left: 39%;" 
+        data-top="20" 
+        data-left="39" 
+        data-description="세크레타 마탑"
+        data-id="region-2"
+      >
+        <img class="pin-button" src="https://imgur.com/QCAnxSz.png" alt="핀" />
+      </div>
+
+      <div 
+        class="region" 
+        id="region-3" 
+        style="top: 45%; left: 43%;" 
+        data-top="45" 
+        data-left="43" 
+        data-description="아제마트 대산맥"
+        data-id="region-3"
+      >
+        <img class="pin-button" src="https://imgur.com/QCAnxSz.png" alt="핀" />
+      </div>
+    </div>
+
+    <div id="info"></div>
+  </div>
 
   <script>
     let isZoomed = false;
     let currentRegion = null;
+
     const container = document.getElementById('container');
     const info = document.getElementById('info');
     const transitionDuration = 1000;
@@ -90,7 +140,8 @@
 
         if (isZoomed && currentRegion === regionEl) {
           container.style.transition = `transform 1s ease`;
-          container.style.transform = `perspective(1000px) scale(1) rotateX(0deg)`;
+          container.style.transform = `perspective(800px) scale(1) rotateX(0deg)`;
+
           info.classList.remove('show');
           setTimeout(() => {
             info.style.display = 'none';
@@ -102,14 +153,15 @@
 
         if (isZoomed && currentRegion !== regionEl) {
           container.style.transition = `transform ${transitionDuration / 1000}s ease`;
-          container.style.transform = `perspective(1000px) scale(1) rotateX(0deg)`;
-          info.classList.remove('show');
+          container.style.transform = `perspective(800px) scale(1) rotateX(0deg)`;
 
+          info.classList.remove('show');
           setTimeout(() => {
             info.style.display = 'none';
+
             container.style.transformOrigin = `${leftPercent}% ${topPercent}%`;
             container.style.transition = `transform ${transitionDuration / 1000}s ease`;
-            container.style.transform = `perspective(1000px) scale(2) rotateX(20deg)`;
+            container.style.transform = `perspective(800px) scale(2) rotateX(20deg)`;
 
             info.innerText = description;
             info.style.display = 'block';
@@ -124,7 +176,7 @@
         } else {
           container.style.transition = `transform 1s ease`;
           container.style.transformOrigin = `${leftPercent}% ${topPercent}%`;
-          container.style.transform = `perspective(1000px) scale(2) rotateX(20deg)`;
+          container.style.transform = `perspective(800px) scale(2) rotateX(20deg)`;
 
           info.innerText = description;
           info.style.display = 'block';
